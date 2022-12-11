@@ -1,0 +1,67 @@
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
+import { Row, Col} from 'react-bootstrap'
+import Pokemon from '../components/Pokemon'
+
+
+
+const Homepage = () => {
+
+    const [pokemon, setPokemon] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    const getPokemonList = async () => {
+        let pokemonArray = [];
+        for(let i = 1; i <= 700; i++ ){
+            pokemonArray.push(await getPokemonData(i));
+        }
+        console.log(pokemonArray);
+        setPokemon(pokemonArray);
+        setLoading(false);
+    }
+
+    const getPokemonData = async (id) => {
+        const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
+        return res;
+    }
+
+    useEffect(() => {
+        getPokemonList();
+    }, [])
+
+
+    //testando barra de pesquisa
+
+   function pokemonFilter (name) {
+        let filteredPokemons = [];
+        if(name===''){
+            getPokemonList();
+        }
+        for(let i in pokemon){
+            if(pokemon[i].data.name.includes(name)){
+                filteredPokemons.push(pokemon[i]);
+            }
+        }
+        setPokemon(filteredPokemons);
+    };
+
+
+
+  return (
+    <>
+        {loading ? (
+            <h1>Carregando...</h1>
+        ) : (
+            <Row>
+                {pokemon.map(p => (
+                    <Col key={p.data.name} xs={12} sm={12} md={4} lg={4} xl={4}>
+                    <Pokemon pokemon={p.data}/>
+                </Col>
+                ))}
+            </Row>
+        )}
+    </>
+  )
+}
+
+export default Homepage
